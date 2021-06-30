@@ -1,7 +1,7 @@
 package br.com.thoughtworks.controller.DTO;
 
 import br.com.thoughtworks.model.Topico;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,8 +20,12 @@ public class TopicoDTO {
         this.dataCriacao = topic.getDataCriacao();
     }
 
-    public static List<TopicoDTO> parseTopic(List<Topico> topics) {
-        return topics.stream().map(TopicoDTO::new).collect(Collectors.toList());
+    public static TopicoDTO parseTopic(Topico topic) {
+        return new TopicoDTO(topic);
+    }
+
+    public static Page<TopicoDTO> parseTopic(Page<Topico> topics) {
+        return topics.map(TopicoDTO::new);
     }
 
     public LocalDateTime getDataCriacao() {

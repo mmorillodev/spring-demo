@@ -1,22 +1,21 @@
 package br.com.thoughtworks.controller.form;
 
-import br.com.thoughtworks.controller.respository.CourseRepository;
 import br.com.thoughtworks.model.Topico;
+import br.com.thoughtworks.repository.TopicRepository;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class TopicForm {
+public class TopicUpdateForm {
 
-    @NotNull @NotEmpty @Size(min = 5)
+    @NotNull
+    @NotEmpty
+    @Size(min = 5)
     private String titulo;
 
     @NotNull @NotEmpty @Size(min = 10)
     private String mensagem;
-
-    @NotNull @NotEmpty
-    private String nomeCurso;
 
     public String getTitulo() {
         return titulo;
@@ -34,15 +33,11 @@ public class TopicForm {
         this.mensagem = mensagem;
     }
 
-    public String getNomeCurso() {
-        return nomeCurso;
-    }
+    public Topico update(Long id, TopicRepository topicRepository) {
+        Topico topic = topicRepository.getById(id);
+        topic.setTitulo(titulo);
+        topic.setMensagem(mensagem);
 
-    public void setNomeCurso(String nomeCurso) {
-        this.nomeCurso = nomeCurso;
-    }
-
-    public Topico parseTopic(CourseRepository repository) {
-        return new Topico(titulo, mensagem, repository.findByNome(nomeCurso));
+        return topic;
     }
 }
