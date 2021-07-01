@@ -8,8 +8,9 @@ import br.com.thoughtworks.controller.respository.CourseRepository;
 import br.com.thoughtworks.model.Topico;
 import br.com.thoughtworks.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -32,7 +33,11 @@ public class TopicsController {
     @Autowired
     private CourseRepository courseRepository;
 
+    // Not a good practice to use cache in this case since it's very likely that this entity's going to have a big amount
+    // of new insertions and updates, which leads us to create and delete cache very often which could be harmful to our
+    // performance. This was an example purely for academic purposes
     @GetMapping
+    @Cacheable(value = "topicsList")
     public Page<TopicoDTO> getTopics(@RequestParam(required = false) String courseName,
             @PageableDefault(sort = "dataCriacao", direction = Sort.Direction.DESC, size = 50) Pageable pageable) {
 
@@ -40,10 +45,11 @@ public class TopicsController {
             return TopicoDTO.parseTopic(topicRepository.findAll(pageable));
         }
         return TopicoDTO.parseTopic(topicRepository.findByCursoNome(courseName, pageable));
-    }†
+    }
 
     @PostMapping
     @Transactional
+    @CacheEvict(cacheNames = "topicsList", allEntries = true)
     public ResponseEntity<TopicoDTO> postTopic(@RequestBody @Valid TopicForm topicForm, UriComponentsBuilder uriComponentsBuilder) {
         Topico topic = topicRepository.save(topicForm.parseTopic(courseRepository));
 
@@ -61,6 +67,7 @@ public class TopicsController {
 
     @PutMapping("/{id}")
     @Transactional
+    @CacheEvict(cacheNames = "topicsList", allEntries = true)
     public ResponseEntity<TopicoDTO> updateTopic(@PathVariable Long id, @RequestBody @Valid TopicUpdateForm topicForm) {
         Optional<Topico> topicoOptional = topicRepository.findById(id);
         return topicoOptional.map(topico -> {
@@ -71,6 +78,7 @@ public class TopicsController {
 
     @DeleteMapping("/{id}")
     @Transactional
+    @CacheEvict(cacheNames = "topicsList", allEntries = true)
     public ResponseEntity<?> deleteTopic(@PathVariable Long id) {
         Optional<Topico> topicoOptional = topicRepository.findById(id);
         return topicoOptional.map(topic -> {
