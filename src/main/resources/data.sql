@@ -1,3 +1,4 @@
+-- Password: 123456
 INSERT INTO USUARIO(nome, email, senha) VALUES('Aluno', 'aluno@email.com', '$2a$10$BchQS0xhI6lv7wvpvZGpUelHCaVD9zo3PxnLnYwBGc6atLX8T0FFa');
 
 INSERT INTO CURSO(nome, categoria) VALUES('Spring Boot', 'Programação');
